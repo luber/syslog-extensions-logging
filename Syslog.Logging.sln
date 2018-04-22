@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Syslog.Extensions.Logging", "src\Syslog.Extensions.Logging\Syslog.Extensions.Logging.csproj", "{BB082757-4003-42F2-8779-E41729170A5B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AD168853-649F-49E1-AC9A-B5925FD53B19}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BB082757-4003-42F2-8779-E41729170A5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB082757-4003-42F2-8779-E41729170A5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB082757-4003-42F2-8779-E41729170A5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB082757-4003-42F2-8779-E41729170A5B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {74248208-3ADF-4B24-8B3A-5163200D8B41}
+	EndGlobalSection
+EndGlobal
