@@ -32,7 +32,7 @@ Tell your application's logging subsystem that you want to you Syslog by adding 
 
 And let Syslog provider know which configuration to use by adding next line in your Startup.cs:
 
-```
+```csharp
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
@@ -46,7 +46,7 @@ And let Syslog provider know which configuration to use by adding next line in y
 
 Also you can configure Syslog provider during adding like this:
 
-```
+```csharp
 		public static IWebHost BuildWebHost(string[] args) {
             return WebHost.CreateDefaultBuilder(args) 
                 .UseConfiguration(hostingConfig)
