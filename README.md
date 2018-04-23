@@ -1,6 +1,6 @@
 # syslog-extensions-logging
 Syslog provider for .NET Core 2.0 [logging subsystem](https://github.com/aspnet/Logging).
-This provider will send log messages to a Syslog server using via UDP protocol.
+This provider will send log messages to a Syslog server via UDP protocol.
 
 Note: For now it supports .Net Core 2.0 and later (versions before 2.0 are not supported yet)
 
