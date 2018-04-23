@@ -3,16 +3,21 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Lyubomyr Vyhovskyy &lt;vyhovskyy@gmail.com&gt;</Authors>
+    <Title>Syslog.Extensions.Logging</Title>
+    <Authors>Lyubomyr Vyhovskyy</Authors>
     <PackageTags>logging syslog netstandard netcore</PackageTags>
     <RepositoryUrl>https://github.com/luber/syslog-extensions-logging.git</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
+    <RepositoryType>git</RepositoryType>
     <PackageLicenseUrl>https://github.com/luber/syslog-extensions-logging/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/luber/syslog-extensions-logging/</PackageProjectUrl>
-    <Copyright>Copyright © Lyubomyr Vyhovskyy &lt;vyhovskyy@gmail.com&gt;</Copyright>
     <Description>Syslog provider for .NET Standard 2.0 logging subsystem 
-This provider will send log messages to a Syslog server using via UDP protocol.
+This provider will send log messages to a Syslog server via UDP protocol.
+
 Note: For now it supports .NET Standard 2.0 and later (versions before 2.0 are not supported yet)</Description>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
+    <Company>Lyubomyr Vyhovskyy</Company>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
