@@ -23,8 +23,6 @@ namespace Syslog.Extensions.Logging
             ReloadLoggerOptions(options.CurrentValue);
         }
 
-        public bool IsEnabled { get; private set; } // TODO
-
         public ILogger CreateLogger(string name)
         {
             return _loggers.GetOrAdd(name, CreateLoggerImplementation);
@@ -40,7 +38,7 @@ namespace Syslog.Extensions.Logging
         {
             _messageProcessor = new SyslogLoggerProcessor(_serverHost, _serverPort);
 
-            return new SyslogLogger(name, Dns.GetHostName(),_messageProcessor);
+            return new SyslogLogger(name, Dns.GetHostName(), null, _messageProcessor);
         }
 
         private void ReloadLoggerOptions(SyslogLoggerProviderOptions providerOptions)

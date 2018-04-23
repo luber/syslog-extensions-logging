@@ -10,6 +10,7 @@ namespace Syslog.Extensions.Logging
         private static readonly string _loglevelPadding = ": ";
 
         private readonly SyslogLoggerProcessor _queueProcessor;
+        private Func<string, LogLevel, bool> _filter;
 
         public enum FacilityType
         {
@@ -32,16 +33,24 @@ namespace Syslog.Extensions.Logging
         [ThreadStatic]
         private static StringBuilder _logBuilder;
 
-        internal SyslogLogger(string name, string hostName, SyslogLoggerProcessor loggerProcessor)
+        internal SyslogLogger(string name, string hostName, Func<string, LogLevel, bool> filter, SyslogLoggerProcessor loggerProcessor)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
 
             HostName = hostName;
+            _filter = filter ?? ((category, logLevel) => true);
 
             _queueProcessor = loggerProcessor;
         }
 
         public string HostName { get; set; }
+
+        public Func<string, LogLevel, bool> Filter
+        {
+            get => _filter;
+            set => _filter = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
         public string SysLogServerHost { get; set; }
         public int SysLogServerPort { get; set; }
 
@@ -49,7 +58,7 @@ namespace Syslog.Extensions.Logging
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            return true;
+            return logLevel != LogLevel.None && Filter(Name, logLevel);
         }
 
         public IDisposable BeginScope<TState>(TState state)
