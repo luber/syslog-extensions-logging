@@ -18,6 +18,7 @@ Note: For now it supports .NET Standard 2.0 and later (versions before 2.0 are n
     <FileVersion>1.0.1.0</FileVersion>
     <Company>Lyubomyr Vyhovskyy</Company>
     <Version>1.0.1</Version>
+    <PackageIconUrl>https://github.com/luber/syslog-extensions-logging/raw/master/syslog.png</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
