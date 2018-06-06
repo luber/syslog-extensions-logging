@@ -9,29 +9,10 @@ namespace Syslog.Extensions.Logging
     {
         private static readonly string _loglevelPadding = ": ";
 
-        private readonly SyslogLoggerProcessor _queueProcessor;
+        [ThreadStatic] private static StringBuilder _logBuilder;
+
         private Func<string, LogLevel, bool> _filter;
-
-        public enum FacilityType
-        {
-            Kern, User, Mail, Daemon, Auth, Syslog, LPR, News, UUCP, Cron, AuthPriv, FTP,
-            NTP, Audit, Audit2, CRON2, Local0, Local1, Local2, Local3, Local4, Local5, Local6, Local7
-        }
-
-        public enum SyslogLogLevel
-        {
-            Emergency,
-            Alert,
-            Critical,
-            Error,
-            Warn,
-            Notice,
-            Info,
-            Debug
-        }
-
-        [ThreadStatic]
-        private static StringBuilder _logBuilder;
+        private SyslogLoggerProcessor _messageProcessor;
 
         internal SyslogLogger(string name, string hostName, Func<string, LogLevel, bool> filter, SyslogLoggerProcessor loggerProcessor)
         {
@@ -40,10 +21,8 @@ namespace Syslog.Extensions.Logging
             HostName = hostName;
             _filter = filter ?? ((category, logLevel) => true);
 
-            _queueProcessor = loggerProcessor;
+            MessageProcessor = loggerProcessor;
         }
-
-        public string HostName { get; set; }
 
         public Func<string, LogLevel, bool> Filter
         {
@@ -51,14 +30,14 @@ namespace Syslog.Extensions.Logging
             set => _filter = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        public string SysLogServerHost { get; set; }
-        public int SysLogServerPort { get; set; }
+        public string HostName { get; set; }
 
         public string Name { get; }
 
-        public bool IsEnabled(LogLevel logLevel)
+        public SyslogLoggerProcessor MessageProcessor
         {
-            return logLevel != LogLevel.None && Filter(Name, logLevel);
+            get => _messageProcessor;
+            set => _messageProcessor = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         public IDisposable BeginScope<TState>(TState state)
@@ -69,6 +48,11 @@ namespace Syslog.Extensions.Logging
             }
 
             return NoopDisposable.Instance;
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return logLevel != LogLevel.None && Filter(Name, logLevel);
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
@@ -93,25 +77,6 @@ namespace Syslog.Extensions.Logging
             }
         }
 
-        private static SyslogLogLevel MapToSyslogLevel(LogLevel level)
-        {
-            if (level == LogLevel.Critical)
-                return SyslogLogLevel.Critical;
-            if (level == LogLevel.Debug)
-                return SyslogLogLevel.Debug;
-            if (level == LogLevel.Error)
-                return SyslogLogLevel.Error;
-            if (level == LogLevel.Information)
-                return SyslogLogLevel.Info;
-            if (level == LogLevel.None)
-                return SyslogLogLevel.Info;
-            if (level == LogLevel.Trace)
-                return SyslogLogLevel.Info;
-            if (level == LogLevel.Warning)
-                return SyslogLogLevel.Warn;
-            return SyslogLogLevel.Info;
-        }
-
         public virtual void WriteMessage(SyslogLogLevel severity, string logName, int eventId, string message, Exception exception)
         {
             var logBuilder = _logBuilder;
@@ -122,12 +87,8 @@ namespace Syslog.Extensions.Logging
                 logBuilder = new StringBuilder();
             }
 
-            // Example:
-            // INFO: ConsoleApp.Program[10]
-            //       Request received
+            var priority = (int) FacilityType.Local0 * 8 + (int) severity; // (Facility * 8) + Severity = Priority
 
-            var priority = (int)FacilityType.Local0 * 8 + (int)severity; // (Facility * 8) + Severity = Priority
-            
             logBuilder.Append("<");
             logBuilder.Append(priority);
             logBuilder.Append(">");
@@ -140,7 +101,7 @@ namespace Syslog.Extensions.Logging
             logBuilder.Append("[");
             logBuilder.Append(eventId);
             logBuilder.Append("]");
-            
+
             if (!string.IsNullOrEmpty(message))
             {
                 // message
@@ -163,7 +124,7 @@ namespace Syslog.Extensions.Logging
             if (logBuilder.Length > 0)
             {
                 // Queue log message
-                _queueProcessor.EnqueueMessage(logBuilder.ToString());
+                MessageProcessor.EnqueueMessage(logBuilder.ToString());
             }
 
             logBuilder.Clear();
@@ -171,14 +132,35 @@ namespace Syslog.Extensions.Logging
             {
                 logBuilder.Capacity = 1024;
             }
+
             _logBuilder = logBuilder;
         }
 
+        private static SyslogLogLevel MapToSyslogLevel(LogLevel level)
+        {
+            if (level == LogLevel.Critical)
+                return SyslogLogLevel.Critical;
+            if (level == LogLevel.Debug)
+                return SyslogLogLevel.Debug;
+            if (level == LogLevel.Error)
+                return SyslogLogLevel.Error;
+            if (level == LogLevel.Information)
+                return SyslogLogLevel.Informational;
+            if (level == LogLevel.None)
+                return SyslogLogLevel.Informational;
+            if (level == LogLevel.Trace)
+                return SyslogLogLevel.Debug;
+            if (level == LogLevel.Warning)
+                return SyslogLogLevel.Warning;
+
+            return SyslogLogLevel.Informational;
+        }
     }
 
     internal class NoopDisposable : IDisposable
     {
         public static NoopDisposable Instance = new NoopDisposable();
+
         public void Dispose()
         {
         }

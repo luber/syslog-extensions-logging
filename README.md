@@ -1,8 +1,8 @@
 # syslog-extensions-logging
-Syslog provider for .NET Core 2.0 [logging subsystem](https://github.com/aspnet/Logging).
+Syslog provider for .NET Core 2.0+ [logging subsystem](https://github.com/aspnet/Logging).
 This provider will send log messages to a Syslog server via UDP protocol.
 
-Note: For now it supports .Net Core 2.0 and later (versions before 2.0 are not supported yet)
+Note: For now it supports .Net Core 2.0+ (versions before 2.0 are not supported yet)
 
 ### Instructions
 
@@ -20,17 +20,15 @@ Configure your app settings by adding next settings to appsettings.json:
 
 Tell your application's logging subsystem that you want to you Syslog by adding next line to Program.cs:
 
+For .net core 2.0:
 ```csharp
-        public static IWebHost BuildWebHost(string[] args) {
-            return WebHost.CreateDefaultBuilder(args) 
-                .UseConfiguration(hostingConfig)
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args) 
                 .UseStartup<Startup>()
                 .ConfigureLogging(builder => builder.AddSyslog()) // <- Add this line
                 .Build();
-  
 ```
-
-And let Syslog provider know which configuration to use by adding next line in your Startup.cs:
+And Syslog provider know which configuration to use by adding next line in your Startup.cs:
 
 ```csharp
         public void ConfigureServices(IServiceCollection services)
@@ -44,12 +42,24 @@ And let Syslog provider know which configuration to use by adding next line in y
         }
 ```
 
+
+For .net core 2.1:
+```csharp
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder<Startup>(args)
+                .ConfigureLogging((hostContext, builder) =>
+                {
+                    // add next lines (note: configuration should be done here instead of Startup.ConfigureServices method b/c in 2.1 call order was changed as result Provider was constructed without options...)
+                    builder.Services.Configure<SyslogLoggerProviderOptions>(hostContext.Configuration.GetSection("SyslogSettings"));                    
+                    builder.AddSyslog();
+                });
+```
+
 Also you can configure Syslog provider during adding like this:
 
 ```csharp
 		public static IWebHost BuildWebHost(string[] args) {
             return WebHost.CreateDefaultBuilder(args) 
-                .UseConfiguration(hostingConfig)
                 .UseStartup<Startup>()
                 .ConfigureLogging((ctx, builder) => 
 					builder.AddSyslog(options => {

@@ -14,8 +14,7 @@ namespace Syslog.Extensions.Logging
         private readonly IDisposable _optionsReloadToken;
 
         private SyslogLoggerProcessor _messageProcessor;
-        private string _serverHost;
-        private int _serverPort;
+        private Func<string, LogLevel, bool> _filter;
 
         public SyslogLoggerProvider(IOptionsMonitor<SyslogLoggerProviderOptions> options)
         {
@@ -36,20 +35,26 @@ namespace Syslog.Extensions.Logging
 
         private SyslogLogger CreateLoggerImplementation(string name)
         {
-            _messageProcessor = new SyslogLoggerProcessor(_serverHost, _serverPort);
-
-            return new SyslogLogger(name, Dns.GetHostName(), null, _messageProcessor);
+            return new SyslogLogger(name, Dns.GetHostName(), _filter, _messageProcessor);
         }
 
         private void ReloadLoggerOptions(SyslogLoggerProviderOptions providerOptions)
         {
-            _serverHost = providerOptions.SyslogServerHost;
-            _serverPort = providerOptions.SyslogServerPort;
+            _filter = providerOptions.Filter;
 
+            // all new loogers will use this instance
+            _messageProcessor = new SyslogLoggerProcessor(providerOptions.SyslogServerHost, providerOptions.SyslogServerPort);
+
+            // update all existing loggers to use new processor
             foreach (var logger in _loggers.Values)
             {
-                logger.SysLogServerHost = providerOptions.SyslogServerHost;
-                logger.SysLogServerPort = providerOptions.SyslogServerPort;
+                // dispose previous
+                logger.MessageProcessor.Dispose();
+
+                // set new
+                logger.MessageProcessor = _messageProcessor;
+
+                logger.Filter = providerOptions.Filter;
             }
         }
     }
